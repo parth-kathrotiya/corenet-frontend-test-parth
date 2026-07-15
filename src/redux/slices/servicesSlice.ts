@@ -9,6 +9,16 @@ export interface Availability {
   end_time: string | null;
 }
 
+export interface AvailabilityException {
+  id: string;
+  service_id: string;
+  date: string;         // ISO date string
+  is_working: boolean;
+  start_time: string | null;
+  end_time: string | null;
+  created_at: string;
+}
+
 export interface Service {
   id: string;
   owner_id: string;
@@ -16,6 +26,7 @@ export interface Service {
   duration: number;
   price: number;
   availabilities: Availability[];
+  exceptions?: AvailabilityException[];
   owner?: { id: string; name: string };
   created_at: string;
   updated_at: string;

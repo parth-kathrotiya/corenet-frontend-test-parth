@@ -54,22 +54,6 @@ export default function CustomerDashboard({ name }: { name: string }) {
     if (token) dispatch(fetchServices(token));
   }, [token, dispatch]);
 
-  // Derive unique categories from real data
-  const categories = ['All', ...Array.from(
-    new Set(
-      services
-        .map((s) => {
-          // Try to infer a category from service name (fallback if no category field)
-          return s.name;
-        })
-        .filter(Boolean)
-    )
-  )];
-
-  // Since the service model doesn't have a category column, we group by owner name
-  // and show 'All' + unique owner names as filters, OR we just show all services.
-  // The selectable boxes are unique service NAMES — multiple owners can offer the
-  // same service name and both will appear.
   const uniqueServiceNames = Array.from(new Set(services.map((s) => s.name)));
   const filterOptions = ['All', ...uniqueServiceNames];
 
@@ -78,10 +62,10 @@ export default function CustomerDashboard({ name }: { name: string }) {
     : services.filter((s) => s.name === activeCategory);
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in space-y-8">
       {/* Welcome Banner */}
       <div
-        className="rounded-2xl p-8 mb-8 text-white relative overflow-hidden"
+        className="rounded-2xl p-8 text-white relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #027B51 0%, #0D1814 100%)' }}
       >
         <div className="relative z-10">
@@ -101,26 +85,27 @@ export default function CustomerDashboard({ name }: { name: string }) {
       </div>
 
       {/* Category / Service-Name Filters */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-6 no-scrollbar">
-        {filterOptions.map((opt) => (
-          <button
-            key={opt}
-            id={`filter-${opt.replace(/\s+/g, '-').toLowerCase()}`}
-            onClick={() => setActiveCategory(opt)}
-            className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border"
-            style={
-              activeCategory === opt
-                ? { background: '#027B51', color: 'white', borderColor: '#027B51' }
-                : { background: 'white', color: '#555', borderColor: '#e5e7eb' }
-            }
-          >
-            {opt}
-          </button>
-        ))}
+      <div>
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-6 no-scrollbar">
+          {filterOptions.map((opt) => (
+            <button
+              key={opt}
+              onClick={() => setActiveCategory(opt)}
+              className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border cursor-pointer"
+              style={
+                activeCategory === opt
+                  ? { background: '#027B51', color: 'white', borderColor: '#027B51' }
+                  : { background: 'white', color: '#555', borderColor: '#e5e7eb' }
+              }
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Services Grid */}
-      <div className="mb-4">
+      <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-gray-900">
             {activeCategory === 'All' ? 'Available Services' : `"${activeCategory}" — All Providers`}
@@ -145,39 +130,39 @@ export default function CustomerDashboard({ name }: { name: string }) {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {filtered.map((s) => {
-              // Pick a deterministic colour from the service name
               const colour = getCategoryColor(s.name.split(' ')[1] ?? s.name.split(' ')[0] ?? 'Other');
               return (
                 <div
                   key={s.id}
-                  className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
+                  onClick={() => router.push(`/book/${s.id}`)}
+                  className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-semibold text-white truncate max-w-[140px]"
-                      style={{ background: colour }}
-                      title={s.owner?.name ?? 'Provider'}
-                    >
-                      {s.owner?.name ?? 'Provider'}
-                    </span>
-                    <span className="text-yellow-400 text-sm font-medium flex-shrink-0">⚡ Live</span>
+                  <div>
+                    <div className="flex items-start justify-between mb-4">
+                      <span
+                        className="px-3 py-1 rounded-full text-xs font-semibold text-white truncate max-w-[140px]"
+                        style={{ background: colour }}
+                        title={s.owner?.name ?? 'Provider'}
+                      >
+                        {s.owner?.name ?? 'Provider'}
+                      </span>
+                      <span className="text-yellow-400 text-sm font-medium flex-shrink-0">⚡ Live</span>
+                    </div>
+                    <h4 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-[#027B51] transition-colors">
+                      {s.name}
+                    </h4>
+                    <p className="text-gray-500 text-sm mb-4">By {s.owner?.name ?? '—'}</p>
+                    <div className="flex items-center gap-4 text-xs text-gray-400 mb-4">
+                      <span>⏱ {s.duration} min</span>
+                      <span>💰 ₹{(s.price / 100).toFixed(0)}</span>
+                    </div>
                   </div>
-                  <h4 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-[#027B51] transition-colors">
-                    {s.name}
-                  </h4>
-                  <p className="text-gray-500 text-sm mb-4">{s.owner?.name ?? '—'}</p>
-                  <div className="flex items-center gap-4 text-xs text-gray-400 mb-4">
-                    <span>⏱ {s.duration} min</span>
-                    <span>💰 ₹{(s.price / 100).toFixed(0)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-50">
                     <span className="text-xl font-bold" style={{ color: '#027B51' }}>
                       ₹{(s.price / 100).toFixed(0)}
                     </span>
                     <button
-                      id={`book-now-${s.id}`}
-                      onClick={() => router.push(`/book/${s.id}`)}
-                      className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                      className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all group-hover:opacity-90"
                       style={{ background: '#027B51' }}
                     >
                       Book Now

@@ -26,6 +26,7 @@ export interface Booking {
   created_at: string;
   customer?: BookingCustomer;
   service?: BookingService;
+  owner?: { id: string; name: string; email: string };
 }
 
 export interface OwnerStats {
@@ -38,6 +39,8 @@ export interface OwnerStats {
 
 interface BookingsState {
   ownerBookings: Booking[];
+  ownerAllBookings: Booking[];
+  ownerAllBookingsLoading: boolean;
   ownerStats: OwnerStats | null;
   customerBookings: Booking[];
   customerBookingsLoading: boolean;
@@ -49,6 +52,8 @@ interface BookingsState {
 
 const initialState: BookingsState = {
   ownerBookings: [],
+  ownerAllBookings: [],
+  ownerAllBookingsLoading: false,
   ownerStats: null,
   customerBookings: [],
   customerBookingsLoading: false,
@@ -158,6 +163,86 @@ export const fetchMyBookings = createAsyncThunk(
   }
 );
 
+export const cancelBooking = createAsyncThunk(
+  'bookings/cancelBooking',
+  async (
+    { token, bookingId }: { token: string; bookingId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(`${API}/api/bookings/${bookingId}/cancel`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) return rejectWithValue(data.message || 'Failed to cancel booking.');
+      return { id: bookingId } as { id: string };
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Network error.');
+    }
+  }
+);
+
+export const fetchAllOwnerBookings = createAsyncThunk(
+  'bookings/fetchAllOwnerBookings',
+  async (token: string, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${API}/api/bookings/owner/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) return rejectWithValue(data.message || 'Failed to fetch all bookings.');
+      return data as Booking[];
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Network error.');
+    }
+  }
+);
+
+export const cancelOwnerBooking = createAsyncThunk(
+  'bookings/cancelOwnerBooking',
+  async (
+    { token, bookingId }: { token: string; bookingId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(`${API}/api/bookings/${bookingId}/owner-cancel`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) return rejectWithValue(data.message || 'Failed to cancel booking.');
+      return { id: bookingId } as { id: string };
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Network error.');
+    }
+  }
+);
+
+export const updateOwnerBookingStatus = createAsyncThunk(
+  'bookings/updateOwnerBookingStatus',
+  async (
+    { token, bookingId, status }: { token: string; bookingId: string; status: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(`${API}/api/bookings/${bookingId}/owner-status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (!res.ok) return rejectWithValue(data.message || 'Failed to update booking status.');
+      return { id: bookingId, status } as { id: string; status: string };
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Network error.');
+    }
+  }
+);
+
 // ── Slice ─────────────────────────────────────────────────────────────────────
 
 const bookingsSlice = createSlice({
@@ -215,6 +300,60 @@ const bookingsSlice = createSlice({
       })
       .addCase(fetchMyBookings.rejected, (state) => {
         state.customerBookingsLoading = false;
+      })
+      // cancelBooking (customer)
+      .addCase(cancelBooking.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(cancelBooking.fulfilled, (state, action: PayloadAction<{ id: string }>) => {
+        state.loading = false;
+        const idx = state.customerBookings.findIndex((b) => b.id === action.payload.id);
+        if (idx !== -1) {
+          state.customerBookings[idx].status = 'cancelled';
+        }
+      })
+      .addCase(cancelBooking.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // fetchAllOwnerBookings
+      .addCase(fetchAllOwnerBookings.pending, (state) => { state.ownerAllBookingsLoading = true; state.error = null; })
+      .addCase(fetchAllOwnerBookings.fulfilled, (state, action: PayloadAction<Booking[]>) => {
+        state.ownerAllBookingsLoading = false;
+        state.ownerAllBookings = action.payload;
+      })
+      .addCase(fetchAllOwnerBookings.rejected, (state, action) => {
+        state.ownerAllBookingsLoading = false;
+        state.error = action.payload as string;
+      })
+      // cancelOwnerBooking
+      .addCase(cancelOwnerBooking.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(cancelOwnerBooking.fulfilled, (state, action: PayloadAction<{ id: string }>) => {
+        state.loading = false;
+        // Update in ownerAllBookings
+        const idx1 = state.ownerAllBookings.findIndex((b) => b.id === action.payload.id);
+        if (idx1 !== -1) state.ownerAllBookings[idx1].status = 'cancelled';
+        // Update in ownerBookings (upcoming)
+        const idx2 = state.ownerBookings.findIndex((b) => b.id === action.payload.id);
+        if (idx2 !== -1) state.ownerBookings[idx2].status = 'cancelled';
+      })
+      .addCase(cancelOwnerBooking.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // updateOwnerBookingStatus
+      .addCase(updateOwnerBookingStatus.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(updateOwnerBookingStatus.fulfilled, (state, action: PayloadAction<{ id: string; status: string }>) => {
+        state.loading = false;
+        const { id, status } = action.payload;
+        // Update in ownerAllBookings
+        const idx1 = state.ownerAllBookings.findIndex((b) => b.id === id);
+        if (idx1 !== -1) state.ownerAllBookings[idx1].status = status;
+        // Update in ownerBookings
+        const idx2 = state.ownerBookings.findIndex((b) => b.id === id);
+        if (idx2 !== -1) state.ownerBookings[idx2].status = status;
+      })
+      .addCase(updateOwnerBookingStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

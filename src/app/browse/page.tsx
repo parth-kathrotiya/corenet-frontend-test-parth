@@ -142,7 +142,7 @@ export default function BrowseServicesPage() {
             <Link href="/browse" className="text-sm font-semibold transition-colors" style={{ color: '#027B51' }}>
               Browse Services
             </Link>
-            <Link href="/" className="text-sm font-medium text-gray-500 hover:text-[#027B51] transition-colors">
+            <Link href="/bookings" className="text-sm font-medium text-gray-500 hover:text-[#027B51] transition-colors">
               My Bookings
             </Link>
           </div>

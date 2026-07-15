@@ -94,13 +94,13 @@ export default function HomePage() {
             {role === 'customer' ? (
               <>
                 <Link href="/browse" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">Browse Services</Link>
-                <Link href="/" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">My Bookings</Link>
+                <Link href="/bookings" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">My Bookings</Link>
               </>
             ) : (
               <>
                 <Link href="/services" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">My Services</Link>
-                <a href="#" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">Availability</a>
-                <a href="#" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">Bookings</a>
+                <Link href="/availability" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">Availability</Link>
+                <Link href="/bookings" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">Bookings</Link>
               </>
             )}
           </div>
