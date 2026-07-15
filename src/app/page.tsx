@@ -2,10 +2,12 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { loadCredentials, clearCredentials } from '@/redux/slices/authSlice';
 import { addToast } from '@/redux/slices/toastSlice';
+import NotificationBell from '@/components/NotificationBell';
 
 // Lazy-load dashboards
 const CustomerDashboard = dynamic(() => import('@/components/CustomerDashboard'), {
@@ -74,27 +76,29 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: '#027B51' }}
-            >
-              <span className="text-white font-bold text-base">B</span>
-            </div>
-            <span className="font-bold text-xl tracking-tight" style={{ color: '#0D1814' }}>
-              BookSlot
-            </span>
+            <Link href="/" className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: '#027B51' }}
+              >
+                <span className="text-white font-bold text-base">B</span>
+              </div>
+              <span className="font-bold text-xl tracking-tight" style={{ color: '#0D1814' }}>
+                BookSlot
+              </span>
+            </Link>
           </div>
 
           {/* Nav Links */}
           <div className="hidden md:flex items-center gap-6">
             {role === 'customer' ? (
               <>
-                <a href="#" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">Browse Services</a>
-                <a href="#" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">My Bookings</a>
+                <Link href="/browse" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">Browse Services</Link>
+                <Link href="/" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">My Bookings</Link>
               </>
             ) : (
               <>
-                <a href="#" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">My Services</a>
+                <Link href="/services" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">My Services</Link>
                 <a href="#" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">Availability</a>
                 <a href="#" className="text-sm font-medium text-gray-600 hover:text-[#027B51] transition-colors">Bookings</a>
               </>
@@ -123,6 +127,9 @@ export default function HomePage() {
             >
               {name ? name.charAt(0).toUpperCase() : '?'}
             </div>
+
+            {/* Notification Bell */}
+            <NotificationBell />
 
             <button
               id="logout-btn"
