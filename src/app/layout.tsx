@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import ReduxProvider from '@/redux/ReduxProvider';
 import ToastContainer from '@/components/ToastContainer';
+import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
   title: 'BookSlot – Appointment Booking',
@@ -22,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="h-full antialiased">
         <ReduxProvider>
           <ToastContainer />
-          {children}
+          <AppShell>{children}</AppShell>
         </ReduxProvider>
       </body>
     </html>

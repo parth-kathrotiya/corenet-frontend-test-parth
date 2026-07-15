@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { loadCredentials, clearCredentials } from '@/redux/slices/authSlice';
+import { loadCredentials } from '@/redux/slices/authSlice';
 import {
   fetchMyBookings,
   cancelBooking,
@@ -15,7 +14,6 @@ import {
 } from '@/redux/slices/bookingsSlice';
 import { fetchServices } from '@/redux/slices/servicesSlice';
 import { addToast } from '@/redux/slices/toastSlice';
-import NotificationBell from '@/components/NotificationBell';
 
 const STATUS_STYLE: Record<string, { bg: string; text: string; label: string }> = {
   confirmed: { bg: '#dcfce7', text: '#166534', label: 'Confirmed' },
@@ -332,11 +330,6 @@ export default function BookingsPage() {
     }
   }, [token, role, dispatch]);
 
-  const handleLogout = () => {
-    dispatch(clearCredentials());
-    dispatch(addToast({ message: 'You have been logged out.', type: 'info' }));
-    router.replace('/login');
-  };
 
   // ── Customer Filters ───────────────────────────────────────────────────────
   const uniqueOwners = Array.from(
@@ -477,77 +470,6 @@ export default function BookingsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#f4f6f5' }}>
-      {/* Navbar */}
-      <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: '#027B51' }}
-            >
-              <span className="text-white font-bold text-base">B</span>
-            </div>
-            <span className="font-bold text-xl tracking-tight" style={{ color: '#0D1814' }}>
-              BookSlot
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-6">
-            {isOwner ? (
-              <>
-                <Link href="/services" className="text-sm font-medium text-gray-500 hover:text-[#027B51] transition-colors">
-                  My Services
-                </Link>
-                <Link href="/availability" className="text-sm font-medium text-gray-500 hover:text-[#027B51] transition-colors">
-                  Availability
-                </Link>
-                <Link href="/bookings" className="text-sm font-semibold transition-colors" style={{ color: '#027B51' }}>
-                  Bookings
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link href="/browse" className="text-sm font-medium text-gray-500 hover:text-[#027B51] transition-colors">
-                  Browse Services
-                </Link>
-                <Link href="/bookings" className="text-sm font-semibold transition-colors" style={{ color: '#027B51' }}>
-                  My Bookings
-                </Link>
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-semibold text-gray-900">{name}</span>
-              <span
-                className="text-xs px-2 py-0.5 rounded-full capitalize font-medium"
-                style={{
-                  background: isOwner ? '#dcfce7' : '#dbeafe',
-                  color: isOwner ? '#166534' : '#1e40af',
-                }}
-              >
-                {role}
-              </span>
-            </div>
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-              style={{ background: '#027B51' }}
-            >
-              {name ? name.charAt(0).toUpperCase() : '?'}
-            </div>
-            <NotificationBell />
-            <button
-              onClick={handleLogout}
-              className="ml-1 px-4 py-2 rounded-xl text-sm font-semibold border transition-all hover:bg-gray-50 cursor-pointer"
-              style={{ borderColor: '#e5e7eb', color: '#555' }}
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         {/* Page Header */}

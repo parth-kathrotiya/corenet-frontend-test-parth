@@ -319,22 +319,6 @@ export default function BookPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#f4f6f5' }}>
-      {/* Navbar */}
-      <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: '#027B51' }}
-            >
-              <span className="text-white font-bold text-base">B</span>
-            </div>
-            <span className="font-bold text-xl tracking-tight" style={{ color: '#0D1814' }}>BookSlot</span>
-          </Link>
-          <span className="text-gray-300 font-light text-lg">/</span>
-          <span className="text-sm font-semibold text-gray-600 truncate">{service.name}</span>
-        </div>
-      </nav>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">

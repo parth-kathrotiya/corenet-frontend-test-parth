@@ -2,12 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { loadCredentials, clearCredentials } from '@/redux/slices/authSlice';
-import { fetchServices, Service } from '@/redux/slices/servicesSlice';
-import { addToast } from '@/redux/slices/toastSlice';
-import NotificationBell from '@/components/NotificationBell';
+import { loadCredentials } from '@/redux/slices/authSlice';
+import { fetchServices } from '@/redux/slices/servicesSlice';
 
 const CATEGORY_COLORS: Record<string, string> = {
   Hair: '#027B51',
@@ -83,11 +80,6 @@ export default function BrowseServicesPage() {
     }
   }, [router]);
 
-  const handleLogout = () => {
-    dispatch(clearCredentials());
-    dispatch(addToast({ message: 'You have been logged out.', type: 'info' }));
-    router.replace('/login');
-  };
 
   // Derive unique services names (can act as subcategories)
   const uniqueNames = Array.from(new Set(services.map((s) => s.name)));
@@ -123,57 +115,6 @@ export default function BrowseServicesPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#f4f6f5' }}>
-      {/* Navbar */}
-      <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: '#027B51' }}
-            >
-              <span className="text-white font-bold text-base">B</span>
-            </div>
-            <span className="font-bold text-xl tracking-tight" style={{ color: '#0D1814' }}>
-              BookSlot
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-6">
-            <Link href="/browse" className="text-sm font-semibold transition-colors" style={{ color: '#027B51' }}>
-              Browse Services
-            </Link>
-            <Link href="/bookings" className="text-sm font-medium text-gray-500 hover:text-[#027B51] transition-colors">
-              My Bookings
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-semibold text-gray-900">{name}</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-medium capitalize">
-                {role}
-              </span>
-            </div>
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-              style={{ background: '#027B51' }}
-            >
-              {name ? name.charAt(0).toUpperCase() : 'C'}
-            </div>
-
-            <NotificationBell />
-
-            <button
-              onClick={handleLogout}
-              className="ml-1 px-4 py-2 rounded-xl text-sm font-semibold border transition-all hover:bg-gray-50"
-              style={{ borderColor: '#e5e7eb', color: '#555' }}
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-8">
